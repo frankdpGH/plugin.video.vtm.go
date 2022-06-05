@@ -167,7 +167,7 @@ class VtmGoStream:
             for _, subtitle in enumerate(stream_info.get('video').get('subtitles')):
                 name = subtitle.get('language')
                 if name == 'nl':
-                    name = 'nl.default'
+                    name = 'nl.default.srt'   # changed to srt
                 elif name == 'nl-tt':
                     name = 'nl.T888'
                 subtitles.append(dict(name=name, url=subtitle.get('url')))
