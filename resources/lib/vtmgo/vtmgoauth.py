@@ -174,10 +174,10 @@ class VtmGoAuth:
         response = util.http_get(API_ENDPOINT + '/VTM_GO/profiles', token=self._account.access_token)
         result = json.loads(response.text)
 
-        # product=profile.get('product'),
         profiles = [
             Profile(
                 key=profile.get('id'),
+                product=profile.get('product'),
                 name=profile.get('name'),
                 gender=profile.get('gender'),
                 birthdate=profile.get('birthDate'),
