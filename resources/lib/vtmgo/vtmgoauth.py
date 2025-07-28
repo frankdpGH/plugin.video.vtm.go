@@ -151,7 +151,7 @@ class VtmGoAuth:
             }, headers={
                 'Accept': 'application/json',
                 'Accept-Encoding': 'gzip',
-                'User-Agent': 'okhttp/4.12.0'
+                'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 9; GATV)'
             })
             auth_info = json.loads(response.text)
             self._account.access_token = auth_info.get('access_token')
