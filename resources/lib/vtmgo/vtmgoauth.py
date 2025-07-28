@@ -116,7 +116,7 @@ class VtmGoAuth:
             'Accept': 'application/json',
             'Accept-Encoding': 'gzip',
             'User-Agent': 'okhttp/4.12.0'
-        })
+            })
         except HTTPError as exc:
             if exc.response.status_code == 400:
                 return False
@@ -157,6 +157,7 @@ class VtmGoAuth:
             self._account.access_token = auth_info.get('access_token')
             self._account.id_token = auth_info.get('id_token')  
             self._account.refresh_token = auth_info.get('refresh_token')
+            self._save_cache()
 
         if self._account.profile:
             return self._account
