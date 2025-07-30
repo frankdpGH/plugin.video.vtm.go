@@ -85,8 +85,14 @@ class VtmGoAuth:
 
     def authorize(self):
         """ Start the authorization flow. """
-        response = util.http_post('https://login2.vtm.be/device/authorize', form={
+        """ 'scope': 'openid email profile address phone',   """
+        response = util.http_post('https://login.vtm.be/device/authorize', form={
             'client_id': 'vtm-go-androidtv',
+            'scope': 'openid email profile address phone'
+        }, headers={
+            'Accept': 'application/json',
+            'Accept-Encoding': 'gzip',
+            'User-Agent': 'okhttp/4.12.0',
         })
         auth_info = json.loads(response.text)
 
@@ -102,10 +108,14 @@ class VtmGoAuth:
             raise NoLoginException
 
         try:
-            response = util.http_post('https://login2.vtm.be/token', form={
+            response = util.http_post('https://login.vtm.be/token', form={
                 'device_code': self._account.device_code,
                 'client_id': 'vtm-go-androidtv',
                 'grant_type': 'urn:ietf:params:oauth:grant-type:device_code',
+            }, headers={
+            'Accept': 'application/json',
+            'Accept-Encoding': 'gzip',
+            'User-Agent': 'okhttp/4.12.0'
             })
         except HTTPError as exc:
             if exc.response.status_code == 400:
@@ -114,20 +124,15 @@ class VtmGoAuth:
 
         # Store these tokens
         auth_info = json.loads(response.text)
-        self._account.id_token = auth_info.get('access_token')
+        self._account.access_token = auth_info.get('access_token')  
+        self._account.id_token = auth_info.get('id_token')  
         self._account.refresh_token = auth_info.get('refresh_token')
-
-        # Fetch an actual token we can use
-        response = util.http_post('https://lfvp-api.dpgmedia.net/VTM_GO/tokens', data={
-            'device': {
-                'id': str(uuid.uuid4()),
-                'name': 'VTM Go Addon on Kodi',
-            },
-            'idToken': self._account.id_token,
-        })
-
-        self._account.access_token = json.loads(response.text).get('lfvpToken')
         self._save_cache()
+        
+        # Validate 
+        response = util.http_post(API_ENDPOINT + '/VTM_GO/id-token', data={
+            'idToken' : self._account.id_token
+        })
 
         return True
 
@@ -138,22 +143,28 @@ class VtmGoAuth:
             return None
 
         # Return our current token if it is still valid.
-        if self._account.is_valid_token() and self._account.profile and self._account.product:
+        if not self._account.is_valid_token():
+            response = util.http_post('https://login.vtm.be/token', form={
+                'refresh_token': self._account.refresh_token,
+                'client_id': 'vtm-go-androidtv',
+                'grant_type': 'refresh_token',
+            }, headers={
+                'Accept': 'application/json',
+                'Accept-Encoding': 'gzip',
+                'User-Agent': 'Dalvik/2.1.0 (Linux; U; Android 9; GATV)'
+            })
+            auth_info = json.loads(response.text)
+            self._account.access_token = auth_info.get('access_token')
+            self._account.refresh_token = auth_info.get('refresh_token')
+            self._save_cache()
+
+        if self._account.profile:
             return self._account
-
-        # We can refresh our old token so it's valid again
-        response = util.http_post('https://lfvp-api.dpgmedia.net/VTM_GO/tokens/refresh', data={
-            'lfvpToken': self._account.access_token,
-        })
-
-        # Get JWT from reply
-        self._account.access_token = json.loads(response.text).get('lfvpToken')
 
         # We always use the main profile
         profiles = self.get_profiles()
         self._account.profile = profiles[0].key
         self._account.product = profiles[0].product
-
         self._save_cache()
 
         return self._account
