@@ -19,7 +19,7 @@ SESSION = requests.Session()
 SESSION.headers = {
 'Accept': 'application/json;image/webp',
 'Accept-Encoding': 'gzip',
-'User-Agent': 'VTM_GO/21.250624 (be.vmma.vtm.zenderapp; build:20529; Android 28) okhttp/4.12.0',
+'User-Agent': 'VTM_GO/21.250820 (be.vmma.vtm.zenderapp; build:20735; Android 28) okhttp/4.12.0',
 'x-app-version': '21',
 'lfvp-device-segment': 'TV>Android',
 }
@@ -165,8 +165,8 @@ def _request(method, url, params=None, form=None, data=None, token=None, profile
         headers = {}
 
     if token:
-        headers['Authorization'] = token
-
+        headers['Authorization'] = 'Bearer ' + token
+        
     if profile:
         headers['x-dpp-profile'] = profile
 
