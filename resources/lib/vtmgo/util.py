@@ -19,8 +19,8 @@ SESSION = requests.Session()
 SESSION.headers = {
 'Accept': 'application/json;image/webp',
 'Accept-Encoding': 'gzip',
-'User-Agent': 'VTM_GO/21.250820 (be.vmma.vtm.zenderapp; build:20735; Android 28) okhttp/4.12.0',
-'x-app-version': '21',
+'User-Agent': 'VTM_GO/22.250930 (be.vmma.vtm.zenderapp; build:20874; Android 28) okhttp/4.12.0',
+'x-app-version': '22',
 'lfvp-device-segment': 'TV>Android',
 }
 PROXIES = kodiutils.get_proxies()
