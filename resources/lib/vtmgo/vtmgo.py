@@ -211,8 +211,8 @@ class VtmGo:
             detail = None
 
         if not detail:
-            # Fetch from API
-            response = util.http_get(API_ENDPOINT + '/%s/detail/%s' % (self._mode(), detail_id),
+            # Fetch from API / 20251014 detail3
+            response = util.http_get(API_ENDPOINT + '/%s/detail3/%s' % (self._mode(), detail_id),
                                      token=self._tokens.access_token if self._tokens else None,
                                      profile=self._tokens.profile if self._tokens else None)
             detail = json.loads(response.text)
@@ -220,22 +220,23 @@ class VtmGo:
 
         # channel = self._parse_channel(detail.get('channelLogoUrl'))
 
-        if detail.get('selectedSeason') is None:
+#        if detail.get('selectedSeason') is None: / 20251014 
+        if detail.get('seasonPicker') is None:
             # Movie
             movie = detail
-
+            secbut= (movie.get('secondaryButtons') or [{}])[0].get('priceLabel')
+            warning = '\n! '+ secbut if secbut else ' '
             return Movie(
                 movie_id=movie.get('id'),
                 name=movie.get('name'),
-                description=movie.get('description'),
+                description=movie.get('description') + warning,
                 duration=movie.get('durationSeconds'),
                 thumb=movie.get('landscapeTeaserImageUrl'),
-                # portraitthumb=movie.get('portraitTeaserImageUrl'),
                 fanart=movie.get('backgroundImageUrl'),
-                # year=movie.get('productionYear'),
-                # geoblocked=movie.get('blockedFor') == 'GEO',
-                # remaining=movie.get('remainingDaysAvailable'),
-                # legal=movie.get('legalIcons'),
+                year = (movie.get('headerLabels') or [{}])[0].get('label'),
+                #geoblocked=movie.get('blockedFor') == 'GEO',
+                #remaining=movie.get('remainingDaysAvailable'),
+                legal=movie.get('legalText'),
                 # aired=movie.get('broadcastTimestamp'),
                 # channel=self._parse_channel(movie.get('channelLogoUrl')),
             )
@@ -243,56 +244,61 @@ class VtmGo:
         else:
             # Program
             program = detail
-
             seasons = {}
-            for item_season in detail.get('seasonIndices', []):
+#            for item_season in detail.get('seasonIndices', []): / 20251014 
+            for item_season in detail.get('seasonPicker', {}).get('indices', []):
                 episodes = []
+                _LOGGER.debug('Loop in seasons')
 
-                # Fetch season
-                season_response = util.http_get(API_ENDPOINT + '/%s/detail/%s?selectedSeasonIndex=%s' % (self._mode(), detail_id, item_season),
+                # Fetch season   / 20251014 detail3
+                season_response = util.http_get(API_ENDPOINT + '/%s/detail3/%s?selectedSeasonIndex=%s' % (self._mode(), detail_id, item_season),
                                                 token=self._tokens.access_token if self._tokens else None,
                                                 profile=self._tokens.profile if self._tokens else None)
-                season = json.loads(season_response.text).get('selectedSeason')
+#                season = json.loads(season_response.text).get('selectedSeason') / 20251014 
+                season = json.loads(season_response.text).get('seasonPicker', {}).get('selected')
 
                 for item_episode in season.get('episodes', []):
+                    badge = item_episode.get('badge')
+                    warning = '\n! '+ badge.get('label') if badge else ' '
                     episodes.append(Episode(
                         episode_id=item_episode.get('id'),
                         program_id=detail_id,
                         program_name=program.get('name'),
                         number=item_episode.get('index'),
                         season=item_season,
-                        name=item_episode.get('name'),
-                        description=item_episode.get('description'),
+                        name=item_episode.get('title'),
+                        description=item_episode.get('description') + warning,
                         duration=item_episode.get('durationSeconds'),
                         thumb=item_episode.get('imageUrl'),
                         fanart=item_episode.get('imageUrl'),
+                        # aired=aired
                         # geoblocked=program.get('blockedFor') == 'GEO',
                         # remaining=item_episode.get('remainingDaysAvailable'),
                         # channel=channel,
                         # legal=program.get('legalIcons'),
-                        aired=item_episode.get('broadcastTimestamp'),
-                        progress=item_episode.get('playerPositionSeconds', 0),
-                        watched=item_episode.get('doneWatching', False),
+                        # aired=item_episode.get('broadcastTimestamp'),                   / 20251014 
+                        # progress=item_episode.get('playerPositionSeconds', 0),          / 20251014 
+                        # watched=item_episode.get('doneWatching', False),                / 20251014 
                     ))
 
                 seasons[item_season] = Season(
                     number=item_season,
                     episodes=episodes,
                     # channel=channel,
-                    legal=program.get('legalIcons'),
+                    # legal=program.get('legalIcons'),
                 )
 
             return Program(
                 program_id=program.get('id'),
                 name=program.get('name'),
                 description=program.get('description'),
-                year=program.get('productionYear'),
                 thumb=program.get('landscapeTeaserImageUrl'),
                 fanart=program.get('backgroundImageUrl'),
-                geoblocked=program.get('blockedFor') == 'GEO',
+                # geoblocked=program.get('blockedFor') == 'GEO',
                 seasons=seasons,
                 # channel=channel,
-                legal=program.get('legalIcons'),
+                year = (program.get('headerLabels') or [{}])[0].get('label'),
+                legal=program.get('legalText'),
                 # my_list=program.get('addedToMyList'),  # Don't use addedToMyList, since we might have cached this info
             )
 
@@ -312,26 +318,27 @@ class VtmGo:
 
         if not movie:
             # Fetch from API
-            response = util.http_get(API_ENDPOINT + '/%s/movies/%s' % (self._mode(), movie_id),
+            response = util.http_get(API_ENDPOINT + '/%s/detail3/%s' % (self._mode(), movie_id),
                                      token=self._tokens.access_token if self._tokens else None,
                                      profile=self._tokens.profile if self._tokens else None)
             movie = json.loads(response.text)
             kodiutils.set_cache(['movie', movie_id], movie)
-
+ 
+        secbut= (movie.get('secondaryButtons') or [{}])[0].get('priceLabel')
+        warning = '\n! '+ secbut if secbut else ' '
         return Movie(
             movie_id=movie.get('id'),
             name=movie.get('name'),
-            description=movie.get('description'),
+            description=movie.get('description') + warning,
             duration=movie.get('durationSeconds'),
             thumb=movie.get('landscapeTeaserImageUrl'),
-            # portraitthumb=movie.get('portraitTeaserImageUrl'),
             fanart=movie.get('backgroundImageUrl'),
-            year=movie.get('productionYear'),
-            geoblocked=movie.get('blockedFor') == 'GEO',
-            remaining=movie.get('remainingDaysAvailable'),
-            legal=movie.get('legalIcons'),
+            year = (movie.get('headerLabels') or [{}])[0].get('label'),
+            #geoblocked=movie.get('blockedFor') == 'GEO',
+            #remaining=movie.get('remainingDaysAvailable'),
+            legal=movie.get('legalText'),
             # aired=movie.get('broadcastTimestamp'),
-            channel=self._parse_channel(movie.get('channelLogoUrl')),
+            # channel=self._parse_channel(movie.get('channelLogoUrl')),
         )
 
     def get_program(self, program_id, cache=CACHE_AUTO):
@@ -349,64 +356,66 @@ class VtmGo:
             program = None
 
         if not program:
-            # Fetch from API
-            response = util.http_get(API_ENDPOINT + '/%s/detail/%s' % (self._mode(), program_id),
+            # Fetch from API /20251014
+            response = util.http_get(API_ENDPOINT + '/%s/detail3/%s' % (self._mode(), program_id),
                                      token=self._tokens.access_token if self._tokens else None,
                                      profile=self._tokens.profile if self._tokens else None)
             program = json.loads(response.text)
             kodiutils.set_cache(['program', program_id], program)
 
-        channel = self._parse_channel(program.get('channelLogoUrl'))
-
+        channel = 'VTM' # /20251014
         seasons = {}
-        for item_season in program.get('seasonIndices', []):
+#        for item_season in program.get('seasonIndices', []): /20251014
+        for item_season in program.get('seasonPicker', {}).get('indices', []):
             episodes = []
 
-            # Fetch season
-            season_response = util.http_get(API_ENDPOINT + '/%s/detail/%s?selectedSeasonIndex=%s' % (self._mode(), program_id, item_season),
+            # Fetch season /20251014
+            season_response = util.http_get(API_ENDPOINT + '/%s/detail3/%s?selectedSeasonIndex=%s' % (self._mode(), program_id, item_season),
                                             token=self._tokens.access_token if self._tokens else None,
                                             profile=self._tokens.profile if self._tokens else None)
-            season = json.loads(season_response.text).get('selectedSeason')
-
+            # season = json.loads(season_response.text).get('selectedSeason') /20251014
+            season = json.loads(season_response.text).get('seasonPicker', {}).get('selected')
             for item_episode in season.get('episodes', []):
+                badge = item_episode.get('badge')
+                warning = '\n! '+ badge.get('label') if badge else ' '
                 episodes.append(Episode(
                     episode_id=item_episode.get('id'),
                     program_id=program_id,
                     program_name=program.get('name'),
                     number=item_episode.get('index'),
                     season=item_season,
-                    name=item_episode.get('name'),
-                    description=item_episode.get('description'),
+                    name=item_episode.get('title'),
+                    description=item_episode.get('description') + warning,
                     duration=item_episode.get('durationSeconds'),
                     thumb=item_episode.get('imageUrl'),
                     fanart=item_episode.get('imageUrl'),
-                    geoblocked=program.get('blockedFor') == 'GEO',
-                    remaining=item_episode.get('remainingDaysAvailable'),
+                    # geoblocked=program.get('blockedFor') == 'GEO',
+                    # remaining=item_episode.get('remainingDaysAvailable'),
                     channel=channel,
-                    legal=program.get('legalIcons'),
-                    aired=item_episode.get('broadcastTimestamp'),
-                    progress=item_episode.get('playerPositionSeconds', 0),
-                    watched=item_episode.get('doneWatching', False),
+                    # legal=program.get('legalIcons'),
+                    # aired=item_episode.get('broadcastTimestamp'),
+                    # progress=item_episode.get('playerPositionSeconds', 0),
+                    # watched=item_episode.get('doneWatching', False),
                 ))
 
             seasons[item_season] = Season(
                 number=item_season,
                 episodes=episodes,
                 channel=channel,
-                legal=program.get('legalIcons'),
+                # legal=program.get('legalIcons'),
             )
 
         return Program(
             program_id=program.get('id'),
             name=program.get('name'),
             description=program.get('description'),
-            year=program.get('productionYear'),
             thumb=program.get('landscapeTeaserImageUrl'),
             fanart=program.get('backgroundImageUrl'),
-            geoblocked=program.get('blockedFor') == 'GEO',
+            # geoblocked=program.get('blockedFor') == 'GEO',
             seasons=seasons,
             channel=channel,
-            legal=program.get('legalIcons'),
+            year = (program.get('headerLabels') or [{}])[0].get('label'),
+            legal=program.get('legalText'),
             # my_list=program.get('addedToMyList'),  # Don't use addedToMyList, since we might have cached this info
         )
 
