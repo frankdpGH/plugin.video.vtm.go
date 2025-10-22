@@ -225,15 +225,17 @@ class VtmGo:
             # Movie
             movie = detail
             secbut= (movie.get('secondaryButtons') or [{}])[0].get('priceLabel')
-            warning = '\n! '+ secbut if secbut else ' '
+            warning = secbut + '\n' if secbut else ' '
+            warning = f'[B][COLOR=yellow]{warning}[/COLOR][/B]'
+            jaar = (movie.get('headerLabels') or [{}])[0].get('label')
             return Movie(
                 movie_id=movie.get('id'),
-                name=movie.get('name'),
-                description=movie.get('description') + warning,
+                description=warning + movie.get('description'),
                 duration=movie.get('durationSeconds'),
                 thumb=movie.get('landscapeTeaserImageUrl'),
                 fanart=movie.get('backgroundImageUrl'),
-                year = (movie.get('headerLabels') or [{}])[0].get('label'),
+                year=jaar,
+                name=movie.get('title', {}).get('label') + ' (' + jaar + ')',
                 #geoblocked=movie.get('blockedFor') == 'GEO',
                 #remaining=movie.get('remainingDaysAvailable'),
                 legal=movie.get('legalText'),
@@ -259,7 +261,8 @@ class VtmGo:
 
                 for item_episode in season.get('episodes', []):
                     badge = item_episode.get('badge')
-                    warning = '\n! '+ badge.get('label') if badge else ' '
+                    warning = badge.get('label') + '\n' if badge else ' '
+                    warning = f'[B][COLOR=yellow]{warning}[/COLOR][/B]'
                     episodes.append(Episode(
                         episode_id=item_episode.get('id'),
                         program_id=detail_id,
@@ -267,7 +270,7 @@ class VtmGo:
                         number=item_episode.get('index'),
                         season=item_season,
                         name=item_episode.get('title'),
-                        description=item_episode.get('description') + warning,
+                        description=warning + item_episode.get('description'),
                         duration=item_episode.get('durationSeconds'),
                         thumb=item_episode.get('imageUrl'),
                         fanart=item_episode.get('imageUrl'),
@@ -325,15 +328,17 @@ class VtmGo:
             kodiutils.set_cache(['movie', movie_id], movie)
  
         secbut= (movie.get('secondaryButtons') or [{}])[0].get('priceLabel')
-        warning = '\n! '+ secbut if secbut else ' '
+        warning = secbut + '\n' if secbut else ' '
+        warning = f'[B][COLOR=yellow]{warning}[/COLOR][/B]'
+        jaar = (movie.get('headerLabels') or [{}])[0].get('label')
         return Movie(
             movie_id=movie.get('id'),
-            name=movie.get('name'),
-            description=movie.get('description') + warning,
+            description=warning + movie.get('description'),
             duration=movie.get('durationSeconds'),
             thumb=movie.get('landscapeTeaserImageUrl'),
             fanart=movie.get('backgroundImageUrl'),
-            year = (movie.get('headerLabels') or [{}])[0].get('label'),
+            year=jaar,
+            name=movie.get('title', {}).get('label') + ' (' + jaar + ')',
             #geoblocked=movie.get('blockedFor') == 'GEO',
             #remaining=movie.get('remainingDaysAvailable'),
             legal=movie.get('legalText'),
@@ -377,7 +382,8 @@ class VtmGo:
             season = json.loads(season_response.text).get('seasonPicker', {}).get('selected')
             for item_episode in season.get('episodes', []):
                 badge = item_episode.get('badge')
-                warning = '\n! '+ badge.get('label') if badge else ' '
+                warning = badge.get('label') + '\n' if badge else ' '
+                warning = f'[B][COLOR=yellow]{warning}[/COLOR][/B]'
                 episodes.append(Episode(
                     episode_id=item_episode.get('id'),
                     program_id=program_id,
@@ -385,7 +391,7 @@ class VtmGo:
                     number=item_episode.get('index'),
                     season=item_season,
                     name=item_episode.get('title'),
-                    description=item_episode.get('description') + warning,
+                    description=warning + item_episode.get('description'),
                     duration=item_episode.get('durationSeconds'),
                     thumb=item_episode.get('imageUrl'),
                     fanart=item_episode.get('imageUrl'),
