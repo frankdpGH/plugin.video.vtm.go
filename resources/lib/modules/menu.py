@@ -46,8 +46,8 @@ class Menu:
                 plot=kodiutils.localize(30016),
             ),
         ))
-
-        listing.append(kodiutils.TitleItem(
+        #block 20251014
+        """listing.append(kodiutils.TitleItem(
             title=kodiutils.localize(30003),  # Movies
             path=kodiutils.url_for('show_recommendations', storefront=STOREFRONT_MOVIES),
             art_dict=dict(
@@ -82,7 +82,7 @@ class Menu:
                 plot=kodiutils.localize(30022),
             ),
         ))
-
+        """
         if kodiutils.get_setting_bool('interface_show_mylist'):
             listing.append(kodiutils.TitleItem(
                 title=kodiutils.localize(30017),  # My List
