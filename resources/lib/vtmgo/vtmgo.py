@@ -65,7 +65,8 @@ class VtmGo:
 
         items = []
         for row in result.get('rows', []):
-            if row.get('rowType') in ['SWIMLANE_DEFAULT', 'SWIMLANE_PORTRAIT', 'SWIMLANE_LANDSCAPE']:
+            _LOGGER.debug('Get storefront %s with type %s', row.get('title'), row.get('rowType'))
+            if row.get('rowType') in ['SWIMLANE_DEFAULT', 'SWIMLANE_PORTRAIT', 'SWIMLANE_LANDSCAPE', 'CONTINUE_WATCHING', 'SWIMLANE_TOP10']:
                 items.append(Category(
                     category_id=row.get('id'),
                     title=row.get('title').strip(),
@@ -228,6 +229,9 @@ class VtmGo:
             warning = secbut + '\n' if secbut else ' '
             warning = f'[B][COLOR=yellow]{warning}[/COLOR][/B]'
             jaar = (movie.get('headerLabels') or [{}])[0].get('label')
+            naam=movie.get('title', {}).get('label')
+            if naam and '(' not in naam:
+                naam = f"{naam} ({jaar})"
             return Movie(
                 movie_id=movie.get('id'),
                 description=warning + movie.get('description'),
@@ -235,7 +239,7 @@ class VtmGo:
                 thumb=movie.get('landscapeTeaserImageUrl'),
                 fanart=movie.get('backgroundImageUrl'),
                 year=jaar,
-                name=movie.get('title', {}).get('label') + ' (' + jaar + ')',
+                name=naam,
                 #geoblocked=movie.get('blockedFor') == 'GEO',
                 #remaining=movie.get('remainingDaysAvailable'),
                 legal=movie.get('legalText'),
@@ -331,6 +335,9 @@ class VtmGo:
         warning = secbut + '\n' if secbut else ' '
         warning = f'[B][COLOR=yellow]{warning}[/COLOR][/B]'
         jaar = (movie.get('headerLabels') or [{}])[0].get('label')
+        naam=movie.get('title', {}).get('label')
+        if naam and '(' not in naam:
+            naam = f"{naam} ({jaar})"
         return Movie(
             movie_id=movie.get('id'),
             description=warning + movie.get('description'),
@@ -338,8 +345,8 @@ class VtmGo:
             thumb=movie.get('landscapeTeaserImageUrl'),
             fanart=movie.get('backgroundImageUrl'),
             year=jaar,
-            name=movie.get('title', {}).get('label') + ' (' + jaar + ')',
-            #geoblocked=movie.get('blockedFor') == 'GEO',
+            name=naam,
+            #geoblocked=movie.get('blockedFor') == 'GEO',store
             #remaining=movie.get('remainingDaysAvailable'),
             legal=movie.get('legalText'),
             # aired=movie.get('broadcastTimestamp'),
