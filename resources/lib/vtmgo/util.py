@@ -173,9 +173,8 @@ def _request(method, url, params=None, form=None, data=None, token=None, profile
 
     response = SESSION.request(method, url, params=params, data=form, json=data, headers=headers, proxies=PROXIES)
 
-    # Set encoding to UTF-8 if no charset is indicated in http headers (https://github.com/psf/requests/issues/1604)
-    if not response.encoding:
-        response.encoding = 'utf-8'
+    # Force encoding to UTF-8 (https://github.com/add-ons/plugin.video.vtm.go/issues/399)
+    response.encoding = 'utf-8'
 
     # Log only the first 1KB of the response
     _LOGGER.debug('Got response (status=%s): %s', response.status_code, response.text[:1024])
