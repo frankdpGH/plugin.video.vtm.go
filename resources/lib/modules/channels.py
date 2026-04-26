@@ -10,8 +10,11 @@ from resources.lib.modules import CHANNELS
 from resources.lib.modules.menu import Menu
 from resources.lib.vtmgo.vtmgo import VtmGo
 from resources.lib.vtmgo.vtmgoauth import VtmGoAuth
+from datetime import datetime
+from dateutil.tz import tzoffset
 
 _LOGGER = logging.getLogger(__name__)
+tz = tzoffset(None, 7200)
 
 
 class Channels:
@@ -52,10 +55,15 @@ class Channels:
                 ))
 
             if channel.epg:
+                now = datetime.now(tz)
+                current = next(
+                    (item for item in channel.epg if item.start <= now < item.end),
+                    None
+                )
                 label = title + '[COLOR gray] | {title} ({start} - {end})[/COLOR]'.format(
-                    title=channel.epg[0].title,
-                    start=channel.epg[0].start.strftime('%H:%M'),
-                    end=channel.epg[0].end.strftime('%H:%M'))
+                    title=current.title,
+                    start=current.start.strftime('%H:%M'),
+                    end=current.end.strftime('%H:%M'))
             else:
                 label = title
 
@@ -100,10 +108,15 @@ class Channels:
 
         label = kodiutils.localize(30052, channel=title)  # Watch live {channel}
         if channel.epg:
-            label = label + '[COLOR gray] | {title} ({start} - {end})[/COLOR]'.format(
-                title=channel.epg[0].title,
-                start=channel.epg[0].start.strftime('%H:%M'),
-                end=channel.epg[0].end.strftime('%H:%M'))
+            now = datetime.now(tz)
+            current = next(
+                (item for item in channel.epg if item.start <= now < item.end),
+                None
+            )
+            label = title + '[COLOR gray] | {title} ({start} - {end})[/COLOR]'.format(
+                title=current.title,
+                start=current.start.strftime('%H:%M'),
+                end=current.end.strftime('%H:%M'))
 
         # The .pvr suffix triggers some code paths in Kodi to mark this as a live channel
         listing = [kodiutils.TitleItem(

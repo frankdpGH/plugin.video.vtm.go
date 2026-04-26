@@ -8,9 +8,11 @@ import logging
 from resources.lib import kodiutils
 from resources.lib.modules import CHANNELS
 from resources.lib.vtmgo import STOREFRONT_KIDS, STOREFRONT_MAIN, STOREFRONT_MOVIES, STOREFRONT_SHORTIES, Episode, Movie, Program, Teaser
+from datetime import datetime
+from dateutil.tz import tzoffset
 
 _LOGGER = logging.getLogger(__name__)
-
+tz = tzoffset(None, 7200)
 
 class Menu:
     """ Menu code """
@@ -133,16 +135,24 @@ class Menu:
 
         if hasattr(obj, 'epg'):
             if obj.epg:
+                now = datetime.now(tz)
+                index, current = next(
+                    ((i, item) for i, item in enumerate(obj.epg) if item.start <= now < item.end),
+                    None
+                )
                 plot += kodiutils.localize(30213,  # Now
-                                           start=obj.epg[0].start.strftime('%H:%M'),
-                                           end=obj.epg[0].end.strftime('%H:%M'),
-                                           title=obj.epg[0].title) + "\n"
+                                           start=obj.epg[index].start.strftime('%H:%M'),
+                                           end=obj.epg[index].end.strftime('%H:%M'),
+                                           title=obj.epg[index].title) + "\n"
 
             if len(obj.epg) > 1:
+                index=index+1  
+                if index>=len(obj.epg):
+                    index=index-1              
                 plot += kodiutils.localize(30214,  # Next
-                                           start=obj.epg[1].start.strftime('%H:%M'),
-                                           end=obj.epg[1].end.strftime('%H:%M'),
-                                           title=obj.epg[1].title) + "\n"
+                                           start=obj.epg[index].start.strftime('%H:%M'),
+                                           end=obj.epg[index].end.strftime('%H:%M'),
+                                           title=obj.epg[index].title) + "\n"
             plot += '\n'
 
         # Add remaining
