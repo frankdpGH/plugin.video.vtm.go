@@ -4,7 +4,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 import json
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 
 import dateutil.parser
@@ -15,6 +15,15 @@ from resources.lib.vtmgo import util
 
 _LOGGER = logging.getLogger(__name__)
 
+def ts_to_iso(epoch_ms: int) -> datetime:
+    # Convert ms → seconds
+    ts = epoch_ms / 1000
+    # Convert to UTC datetime
+    dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc)
+    # Convert to CET/CEST (Europe/Brussels)
+    cet = dateutil.tz.gettz("Europe/Brussels")
+    dt_cet = dt_utc.astimezone(cet)
+    return dt_cet
 
 class EpgChannel:
     """ Defines an Channel with EPG information """
@@ -39,7 +48,6 @@ class EpgChannel:
 
 class EpgBroadcast:
     """ Defines an EPG broadcast"""
-
     def __init__(self, uuid=None, playable_type=None, title=None, time=None, duration=None, thumb=None, description=None, live=None, rerun=None, tip=None,
                  program_uuid=None, playable_uuid=None, channel_uuid=None, airing=None, genre=None):
         """
@@ -187,7 +195,8 @@ class VtmGoEpg:
 
         # Check if this broadcast is currently airing
         timestamp = datetime.now(dateutil.tz.tzlocal())
-        start = dateutil.parser.parse(broadcast_json.get('fromIso') + 'Z').astimezone(dateutil.tz.gettz('CET'))
+        start = ts_to_iso(broadcast_json.get('from'))
+        # start = dateutil.parser.parse(broadcast_json.get('fromIso') + 'Z').astimezone(dateutil.tz.gettz('CET'))
         airing = bool(start <= timestamp < (start + timedelta(seconds=duration)))
 
         # Genre
