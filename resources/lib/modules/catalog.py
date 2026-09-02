@@ -175,7 +175,7 @@ class Catalog:
         :type season: int
         """
         try:
-            program_obj = self._api.get_program(program)  # Use CACHE_AUTO since the data is just refreshed in show_program
+            program_obj = self._api.get_program(program,cache=CACHE_PREVENT)  # Use CACHE_PREVENT as sometimes no refresh
         except UnavailableException:
             kodiutils.ok_dialog(message=kodiutils.localize(30717))  # This program is not available in the VTM GO catalogue.
             kodiutils.end_of_directory()
