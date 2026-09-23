@@ -104,6 +104,8 @@ class VtmGoEpg:
         :rtype: EpgChannel
         """
         date = self._parse_date(date)
+        if channel!='vtm' and '-' not in channel:     #vtm2 is now vtm-2
+            channel = channel.replace('vtm','vtm-')
 
         response = util.http_get(self.EPG_URL.format(date=date))
         epg = json.loads(response.text)
