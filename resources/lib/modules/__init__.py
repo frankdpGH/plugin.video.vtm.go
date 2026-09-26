@@ -45,7 +45,7 @@ CHANNELS = OrderedDict([
     ('vtm2', dict(
         label='VTM 2',
         logo='vtm2',
-        epg='vtm2',
+        epg='vtm-2',
         iptv_preset=7,
         iptv_id='vtm2.be',
         studio_icon='VTM 2',
@@ -61,7 +61,7 @@ CHANNELS = OrderedDict([
     ('vtm3', dict(
         label='VTM 3',
         logo='vtm3',
-        epg='vtm3',
+        epg='vtm-3',
         iptv_preset=8,
         iptv_id='vtm3.be',
         studio_icon='VTM 3',
@@ -77,15 +77,15 @@ CHANNELS = OrderedDict([
     ('vtm4', dict(
         label='VTM 4',
         logo='vtm4',
-        epg='vtm4',
+        epg='vtm-4',
         iptv_preset=9,
         iptv_id='vtm4.be',
         studio_icon='VTM 4',
     )),
     ('vtm-gold', dict(
-        label='VTM Gold',
+        label='VTM GOLD',
         logo='vtm-gold',
-        epg='vtmgold',
+        epg='vtm-gold',
         iptv_preset=10,
         iptv_id='vtmgold.be',
         studio_icon='VTM Gold',
@@ -94,15 +94,23 @@ CHANNELS = OrderedDict([
         label='VTM Non-Stop',
         logo='vtm-nonstop',
         epg='vtmnonstop',
-        iptv_preset=13,
+        iptv_preset=15,
         iptv_id='vtmnonstop.be',
         # studio_icon='VTM Non-Stop',
+    )),
+    ('vtm-xmas', dict(
+        label='VTM Xmas',
+        logo='vtm-xmas',
+        epg='vtm-xmas',
+        iptv_preset=16,
+        iptv_id='vtmxmas.be',
+        studio_icon='VTM Xmas',
     )),
     ('qmusic', dict(
         label='QMusic',
         logo='qmusic',
         epg='qmusic',
-        iptv_preset=20,
+        iptv_preset=50,
         iptv_id='qmusic.be',
         studio_icon='Q Music',
         youtube=[
@@ -116,9 +124,9 @@ CHANNELS = OrderedDict([
     )),
     ('joe', dict(
         label='Joe',
-        # logo='joe',
-        # epg='joe',
-        iptv_preset=22,
+        logo='joe',
+        epg='joe',
+        iptv_preset=51,
         iptv_id='joe.be',
         # studio_icon='Joe',
         youtube=[
@@ -129,6 +137,22 @@ CHANNELS = OrderedDict([
                 path='plugin://plugin.video.youtube/channel/UCvKfMc-kEDlqKE9Ejy-IPxA/',
             ),
         ]
+    )),
+    ('willy', dict(
+        label='Willy',
+        logo='willy',
+        epg='willy',
+        iptv_preset=52,
+        iptv_id='willy.be',
+        # studio_icon='Willy',
+    )),
+    ('TOP', dict(
+        label='TOP',
+        logo='top',
+        epg='top',
+        iptv_preset=53,
+        iptv_id='top.be',
+        # studio_icon='Willy',
     )),
     ('vtmnieuws', dict(
         label='VTM Nieuws',
