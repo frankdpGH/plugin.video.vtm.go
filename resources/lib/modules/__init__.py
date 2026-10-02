@@ -93,7 +93,7 @@ CHANNELS = OrderedDict([
     ('vtm-nonstop', dict(
         label='VTM Non-Stop',
         logo='vtm-nonstop',
-        epg='vtmnonstop',
+        epg=None,
         iptv_preset=15,
         iptv_id='vtmnonstop.be',
         # studio_icon='VTM Non-Stop',
@@ -125,7 +125,7 @@ CHANNELS = OrderedDict([
     ('joe', dict(
         label='Joe',
         logo='joe',
-        epg='joe',
+        epg=None,
         iptv_preset=51,
         iptv_id='joe.be',
         # studio_icon='Joe',
@@ -141,7 +141,7 @@ CHANNELS = OrderedDict([
     ('willy', dict(
         label='Willy',
         logo='willy',
-        epg='willy',
+        epg=None,
         iptv_preset=52,
         iptv_id='willy.be',
         # studio_icon='Willy',
@@ -149,7 +149,7 @@ CHANNELS = OrderedDict([
     ('TOP', dict(
         label='TOP',
         logo='top',
-        epg='top',
+        epg=None,
         iptv_preset=53,
         iptv_id='top.be',
         # studio_icon='Willy',

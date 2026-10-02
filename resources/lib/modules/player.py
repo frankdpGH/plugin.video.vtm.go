@@ -51,6 +51,18 @@ class Player:
             kodiutils.end_of_directory()
             return
 
+        if 'getplid' in item:
+            _LOGGER.info(f'playableId requested is: {item}')
+            uuid = item.replace('getplid', '')
+            item = self._api.get_playableId(uuid)
+            _LOGGER.info(f'playableId is: {item}')
+            if not item:
+                kodiutils.end_of_directory()
+                kodiutils.notification(heading='Error', message='playableId not found try switch to channel')
+                return
+        if category == 'standalones':
+            category = 'oneoffs'
+
         try:
             # Get stream information
             resolved_stream = self._stream.get_stream(category, item)
