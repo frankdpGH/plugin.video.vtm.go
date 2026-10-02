@@ -59,8 +59,7 @@ class IPTVManager:
                 name=channel_data.get('label') if channel_data else channel.name,
                 id=channel_data.get('iptv_id'),
                 preset=channel_data.get('iptv_preset'),
-                logo='special://home/addons/{addon}/resources/logos/{logo}.png'.format(addon=kodiutils.addon_id(), logo=channel.key)
-                if channel_data else channel.logo,
+                logo=channel.logo,
                 stream=kodiutils.url_for('play', category='channels', item=channel.channel_id),
                 vod=kodiutils.url_for('play_epg_datetime', channel=channel.key, timestamp='{date}'),
             ))

@@ -36,10 +36,7 @@ class Channels:
 
             fanart = channel.background
             title = channel.name
-            if channel_data and channel_data.get('logo'):
-                icon = '{path}/resources/logos/{logo}-white.png'.format(path=kodiutils.addon_path(), logo=channel_data.get('logo'))
-            else:
-                icon = channel.logo
+            icon = channel.logo
 
             context_menu = [(
                 kodiutils.localize(30052, channel=title),  # Watch live {channel}
@@ -101,10 +98,7 @@ class Channels:
 
         fanart = channel.background
         title = channel.name
-        if channel_data and channel_data.get('logo'):
-            icon = '{path}/resources/logos/{logo}-white.png'.format(path=kodiutils.addon_path(), logo=channel_data.get('logo'))
-        else:
-            icon = channel.logo
+        icon = channel.logo
 
         label = kodiutils.localize(30052, channel=title)  # Watch live {channel}
         if channel.epg:
