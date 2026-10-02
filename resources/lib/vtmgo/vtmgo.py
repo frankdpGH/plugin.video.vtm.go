@@ -197,6 +197,25 @@ class VtmGo:
         channels = self.get_live_channels()
         return next(c for c in channels if c.key == key)
 
+    def get_playableId(self, uuid=None):
+        """ Get the playable id for the specified uuid from tvguide
+        :rtype str
+        """
+        playableId=None
+        if uuid:
+            response = util.http_get(API_ENDPOINT + '/%s/live/broadcast/%s' % (self._mode(), uuid),
+                                    token=self._tokens.access_token if self._tokens else None,
+                                    profile=self._tokens.profile if self._tokens else None)
+            info = json.loads(response.text)
+            detailId=info.get('detailId')
+            if detailId:
+                response = util.http_get(API_ENDPOINT + '/%s/detail3/%s' % (self._mode(), detailId),
+                                        token=self._tokens.access_token if self._tokens else None,
+                                        profile=self._tokens.profile if self._tokens else None)
+                info = json.loads(response.text)
+                playableId = (info.get("primaryButton") or {}).get("playableId")
+        return playableId
+
     def get_detail(self, detail_id, cache=CACHE_AUTO):
         """ Get the details of the specified program.
         :type detail_id: str
@@ -391,6 +410,7 @@ class VtmGo:
                 badge = item_episode.get('badge')
                 warning = badge.get('label') + '\n' if badge else ' '
                 warning = f'[B][COLOR=yellow]{warning}[/COLOR][/B]'
+                description = warning + item_episode.get('description') if item_episode.get('description') else warning
                 episodes.append(Episode(
                     episode_id=item_episode.get('id'),
                     program_id=program_id,
@@ -398,7 +418,7 @@ class VtmGo:
                     number=item_episode.get('index'),
                     season=item_season,
                     name=item_episode.get('title'),
-                    description=warning + item_episode.get('description'),
+                    description=description,
                     duration=item_episode.get('durationSeconds'),
                     thumb=item_episode.get('imageUrl'),
                     fanart=item_episode.get('imageUrl'),

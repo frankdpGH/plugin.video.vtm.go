@@ -104,8 +104,6 @@ class VtmGoEpg:
         :rtype: EpgChannel
         """
         date = self._parse_date(date)
-        if channel!='vtm' and '-' not in channel:     #vtm2 is now vtm-2
-            channel = channel.replace('vtm','vtm-')
 
         response = util.http_get(self.EPG_URL.format(date=date))
         epg = json.loads(response.text)
@@ -202,15 +200,15 @@ class VtmGoEpg:
         airing = bool(start <= timestamp < (start + timedelta(seconds=duration)))
 
         # Genre
-        if broadcast_json.get('subGenres'):
-            genre = broadcast_json.get('subGenres', [])[0]
-        else:
-            genre = broadcast_json.get('genre')
+        genre = next(iter(broadcast_json.get('genres', [])), '')
+        uuid=broadcast_json.get('uuid')
+        uuid = uuid[0] if isinstance(uuid, tuple) else uuid
+        playableId= 'getplid' + uuid
 
         return EpgBroadcast(
-            uuid=broadcast_json.get('uuid'),
+            uuid=uuid,
             playable_type=broadcast_json.get('playableType'),
-            playable_uuid=broadcast_json.get('playableUuid'),
+            playable_uuid=playableId,
             title=broadcast_json.get('title'),
             time=start,
             duration=duration,
