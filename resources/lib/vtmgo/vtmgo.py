@@ -197,7 +197,7 @@ class VtmGo:
         channels = self.get_live_channels()
         return next(c for c in channels if c.key == key)
 
-    def get_playableId(self, uuid=None):
+    def get_playableId(self, uuid=None, category=None):
         """ Get the playable id for the specified uuid from tvguide
         :rtype str
         """
@@ -208,12 +208,24 @@ class VtmGo:
                                     profile=self._tokens.profile if self._tokens else None)
             info = json.loads(response.text)
             detailId=info.get('detailId')
+            episodeTitle=info.get('episodeTitle')
             if detailId:
                 response = util.http_get(API_ENDPOINT + '/%s/detail3/%s' % (self._mode(), detailId),
                                         token=self._tokens.access_token if self._tokens else None,
                                         profile=self._tokens.profile if self._tokens else None)
                 info = json.loads(response.text)
-                playableId = (info.get("primaryButton") or {}).get("playableId")
+                if category=='episodes':
+                    playableId = next(
+                        (
+                        ep["id"]
+                        for ep in info["seasonPicker"]["selected"]["episodes"]
+                        if ep["title"].split(". ", 1)[1] == episodeTitle
+                        ),
+                        None
+                        )
+                else:
+                    playableId = (info.get("primaryButton") or {}).get("playableId")
+                    
         return playableId
 
     def get_detail(self, detail_id, cache=CACHE_AUTO):
