@@ -175,7 +175,7 @@ class VtmGo:
             epg = []
             for item_epg in item.get('broadcasts', []):
                 epg.append(LiveChannelEpg(
-                    title=item_epg.get('name'),
+                    title=item_epg.get('title')['label'], # New from API26
                     start=dateutil.parser.parse(item_epg.get('startsAt')),
                     end=dateutil.parser.parse(item_epg.get('endsAt')),
                 ))
@@ -183,7 +183,7 @@ class VtmGo:
                 key=item.get('seoKey'),
                 channel_id=item.get('channelId'),
                 logo=item.get('channelLogoUrl'),
-                background=item.get('channelPosterUrl'),
+                background=item.get('backgroundImageUrl'),  # new from API26 
                 name=item.get('name'),
                 epg=epg,
             ))
